@@ -9,8 +9,8 @@ import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 public class MysqlConnection {
 	//Tomasz changes begin
-	static Boolean isAdmin = false;
-	static int loggedUserID;
+	private static Boolean isAdmin = false;
+	private static int loggedUserID;
 	//Tomasz changes end
 
 	//Declare mysql datasource
@@ -114,13 +114,7 @@ public class MysqlConnection {
 		ResultSet results = null;
 		try {
 			results = query.executeQuery(q);
-			//Print info from all rows
-//			while(results.next()){
-//				System.out.print(results.getString("staffid") + " ");
-//				System.out.print(results.getString("name") + " ");
-//				System.out.print(results.getString("username") + " ");
-//				System.out.println(results.getString("password") + " ");
-//			}
+
 			
 		} catch (SQLException e) {
 			System.err.println("SQL Error: " + e.getMessage());

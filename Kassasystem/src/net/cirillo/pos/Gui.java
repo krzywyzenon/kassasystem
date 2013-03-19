@@ -1,20 +1,30 @@
 package net.cirillo.pos;
 
-import java.awt.Dimension;
-
-import javax.swing.JFrame;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-import javax.swing.JMenuBar;
+import javax.swing.BorderFactory;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
+import javax.swing.border.EtchedBorder;
 
 public class Gui extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
+	//Tomasz begin
+	
+	JLabel statusBar = new JLabel("Status Bar");
+	MysqlConnection db = null;
+	
+	//Tomasz end
 
 	public Gui() {
 		setTitle("Grupp 2 kassa");
@@ -22,6 +32,7 @@ public class Gui extends JFrame implements ActionListener {
 		setResizable(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().setLayout(new BorderLayout(0, 0));
+		
 
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -68,8 +79,36 @@ public class Gui extends JFrame implements ActionListener {
 		
 		System.out.println(MysqlConnection.getAdmin());
 		System.out.println(MysqlConnection.getLoggedUserID());
+		
+		
+		add(createStatusBar(), BorderLayout.SOUTH);
 	}
-
+	
+	//Tomasz begin
+	public JLabel createStatusBar(){
+		statusBar.setBorder(BorderFactory.createEtchedBorder(
+                EtchedBorder.RAISED));
+		db = new MysqlConnection();
+		db.connect();
+		ResultSet result = db.selectStaff("select * from staff where staffid = '" + MysqlConnection.getLoggedUserID() + "'");
+		try {
+			result.next();
+			if(result.getShort("admin") == 1){
+				statusBar.setText("Welcome " + result.getString("name") + "! You are logged in as admin");
+			}else{
+				statusBar.setText("Welcome " + result.getString("name") + "!");
+			}
+				
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		db.close();
+		return statusBar;
+	}
+	//Tomasz end
+	
 	public void openNewItemForm() {
 		AddItemForm addItemForm = new AddItemForm(getLocation().x+(getWidth()/2),getLocation().y+(getHeight()/2));
 		addItemForm.setVisible(true);

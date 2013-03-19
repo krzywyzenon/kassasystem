@@ -1,5 +1,6 @@
 package net.cirillo.pos;
 
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -10,17 +11,20 @@ import java.sql.SQLException;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 public class LoginGUI {
 	JFrame myFrame;
 	MysqlConnection db = null;
 	JTextField userName;
-	JTextField password;
+	JPasswordField password;
+	JLabel loginStatus;
 	
 
 	LoginGUI(){
 		myFrame = new JFrame("Kassa hanterare");
+		myFrame.setLocationRelativeTo(null);
 		myFrame.setVisible(true);
 		myFrame.setSize(300, 300);
 		myFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -28,8 +32,10 @@ public class LoginGUI {
 		JLabel userNameLabel = new JLabel("Username: ");
 		JLabel passwordLabel = new JLabel("Password: ");
 		userName = new JTextField(20);
-		password = new JTextField(20);
+		password = new JPasswordField(20);
 		JButton logIn = new JButton("Log in");
+		loginStatus = new JLabel();
+		loginStatus.setForeground(Color.red);
 		
 		myFrame.setLayout(new GridBagLayout());
 		GridBagConstraints gc = new GridBagConstraints();
@@ -47,8 +53,10 @@ public class LoginGUI {
 		myFrame.add(password, gc);
 		gc.gridx = 0;
 		gc.gridy = 2;
-		gc.gridwidth = 2;
 		myFrame.add(logIn, gc);
+		gc.gridx = 1;
+		gc.gridy = 2;
+		myFrame.add(loginStatus, gc);
 		myFrame.pack();
 		
 		logIn.addActionListener(new ActionListener(){
@@ -56,7 +64,6 @@ public class LoginGUI {
 			public void actionPerformed(ActionEvent arg0) {
 				db = new MysqlConnection();
 				db.connect();
-//				ResultSet res = db.selectStaff("select * from staff where username = '" + userName.getText() + "' and password = '" + password.getText() + "'");
 				ResultSet res = db.selectStaff("select * from staff");
 				try {
 							
@@ -65,10 +72,10 @@ public class LoginGUI {
 								if(userName.getText().equals(res.getString("username")) && password.getText().equals(res.getString("password"))){
 									System.out.println("Welcome " + res.getString("name"));
 									if(res.getShort("admin") == 1 ){
-										System.out.println("You are logged in as admin");
 										MysqlConnection.setAdmin(true);
 									}
 									MysqlConnection.setLoggedUserID(res.getShort("staffid"));
+									db.close();
 									Gui gui = new Gui();
 									gui.setVisible(true);
 									myFrame.dispose();
@@ -80,8 +87,10 @@ public class LoginGUI {
 							}
 							
 						}
-					
-						System.out.println("login incorrect");
+						loginStatus.setText("Login incorrect!");
+						userName.setText("");
+						password.setText("");
+						db.close();
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
