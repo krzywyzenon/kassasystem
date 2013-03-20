@@ -76,11 +76,7 @@ public class Gui extends JFrame implements ActionListener {
 
 		JMenuItem mntmRemoveCustomer = new JMenuItem("Ta bort kund");
 		mnCustomers.add(mntmRemoveCustomer);
-		
-		System.out.println(MysqlConnection.getAdmin());
-		System.out.println(MysqlConnection.getLoggedUserID());
-		
-		
+				
 		add(createStatusBar(), BorderLayout.SOUTH);
 	}
 	
@@ -93,7 +89,7 @@ public class Gui extends JFrame implements ActionListener {
 		ResultSet result = db.selectStaff("select * from staff where staffid = '" + MysqlConnection.getLoggedUserID() + "'");
 		try {
 			result.next();
-			if(result.getShort("admin") == 1){
+			if(MysqlConnection.getAdmin()){
 				statusBar.setText("Welcome " + result.getString("name") + "! You are logged in as admin");
 			}else{
 				statusBar.setText("Welcome " + result.getString("name") + "!");
