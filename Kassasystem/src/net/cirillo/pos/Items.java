@@ -10,7 +10,7 @@ public class Items {
 	
 	public void SearchItem(String s) {
 		db.connect();
-		db.select("SELECT * FROM item WHERE itemid = " + "'" + s + "'" + " OR name =" + "'" + s + "';" );
+		db.select("SELECT * FROM item WHERE itemid = " + "'" + s + "'" + " OR name like " + "'%" + s + "%';" );
 		db.close();
 	}
 	
