@@ -1,16 +1,28 @@
 package net.cirillo.pos;
 
+import java.awt.GridLayout;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Scanner;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 public class MysqlConnection {
 	//Tomasz changes begin
 	private static Boolean isAdmin = false;
 	private static int loggedUserID;
+	private static Boolean adminPasswordSet = false;
+	private static String adminPw;
+	private static String passwordRequired = "Please type in admin password";
 	//Tomasz changes end
 
 	//Declare mysql datasource
@@ -28,16 +40,8 @@ public class MysqlConnection {
 		ds.setServerName("localhost");
 		ds.setDatabaseName("kassa");
 		ds.setPort(3306);
-		if(isAdmin == true){
-			ds.setUser("kassa_admin");
-			ds.setPassword("admin");
-		}else
-		{
-			ds.setUser("kassa_user");
-			ds.setPassword("user");
-		}
-			
-			
+		dbLogin();
+
 	}
 
 	public void connect() {
@@ -131,6 +135,40 @@ public class MysqlConnection {
 			System.out.println("Unable to close mysql connection");
 		}
 		System.out.println("\nConnection closed");
+	}
+	
+	//Tomasz logging to database
+	public void dbLogin(){
+		if(isAdmin == true && adminPasswordSet == false){
+			ds.setUser("kassa_admin");
+			adminPw =JOptionPane.showInputDialog(passwordRequired);
+			if(adminPw == null){
+				ds.setUser("kassa_user");
+				ds.setPassword("user");
+				isAdmin = false;
+			}
+			else{
+				ds.setPassword(adminPw);
+				try {
+					ds.getConnection();
+					passwordRequired = "Please type in admin password";
+				} catch (SQLException e) {
+					passwordRequired = "Incorrect. Please try again.";
+					dbLogin();
+//					e.printStackTrace();
+				}
+				adminPasswordSet = true;
+			}
+				
+		}else if(isAdmin == true && adminPasswordSet == true){
+			
+				ds.setUser("kassa_admin");
+				ds.setPassword(adminPw);
+		}else 
+		{
+			ds.setUser("kassa_user");
+			ds.setPassword("user");
+		}
 	}
 	
 	//Tomasz getters and setters
