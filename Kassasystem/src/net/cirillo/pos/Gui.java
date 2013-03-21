@@ -40,13 +40,24 @@ public class Gui extends JFrame implements ActionListener {
 		JMenu mnPos = new JMenu("Kassa");
 		menuBar.add(mnPos);
 
-		JMenuItem mntmLogin = new JMenuItem("Logga in");
+		JMenuItem mntmLogin = new JMenuItem("Logga in som en administrat\u00F6r");
+		//Tomasz ch
+		mntmLogin.setActionCommand("login");
+		mntmLogin.addActionListener(this);
 		mnPos.add(mntmLogin);
 
+		JMenuItem mntmAdLogout = new JMenuItem("Logga ut från administrat\u00F6r");
+		mntmAdLogout.setActionCommand("adLogout");
+		mntmAdLogout.addActionListener(this);
+		mnPos.add(mntmAdLogout);
+		//Tomasz end
 		JSeparator separator = new JSeparator();
 		mnPos.add(separator);
 
 		JMenuItem mntmExit = new JMenuItem("Avsluta");
+		//Test
+		mntmExit.setActionCommand("testuj");
+		mntmExit.addActionListener(this);
 		mnPos.add(mntmExit);
 
 		JMenu mnItems = new JMenu("Artiklar");
@@ -114,6 +125,15 @@ public class Gui extends JFrame implements ActionListener {
 		SearchItemForm searchItemForm = new SearchItemForm(getLocation().x+(getWidth()/2),getLocation().y+(getHeight()/2));
 		searchItemForm.setVisible(true);
 	}
+	
+	public void adminLoginForm(){
+		AdminStuff adminHandler = new AdminStuff(db, statusBar);
+		adminHandler.adminAuthCheck();
+	}
+	public void adminLogout(){
+		AdminStuff adminHandler = new AdminStuff(db, statusBar);
+		adminHandler.adminLogout();
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -123,7 +143,20 @@ public class Gui extends JFrame implements ActionListener {
 			break;
 		case "searchItem":
 			openSearchItemForm();
-			break;	
+			break;
+			//Tomasz changes
+		case "login":
+			adminLoginForm();
+			break;
+		case "testuj":
+			System.out.println("Admin: " + MysqlConnection.getAdmin());
+			System.out.println("AdminPW: " + MysqlConnection.getAdminPw());
+			System.out.println("User: " + db.getDs().getUser());
+			break;
+		case "adLogout":
+			adminLogout();
+			break;
+			//Tomasz changes end
 		}
 
 	}

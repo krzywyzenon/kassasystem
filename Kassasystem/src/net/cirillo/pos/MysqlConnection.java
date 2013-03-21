@@ -23,6 +23,7 @@ public class MysqlConnection {
 	private static Boolean adminPasswordSet = false;
 	private static String adminPw;
 	private static String passwordRequired = "Please type in admin password";
+	private JPasswordField passField = new JPasswordField(10);
 	//Tomasz changes end
 
 	//Declare mysql datasource
@@ -140,25 +141,29 @@ public class MysqlConnection {
 	//Tomasz logging to database
 	public void dbLogin(){
 		if(isAdmin == true && adminPasswordSet == false){
-			ds.setUser("kassa_admin");
-			adminPw =JOptionPane.showInputDialog(passwordRequired);
-			if(adminPw == null){
-				ds.setUser("kassa_user");
-				ds.setPassword("user");
-				isAdmin = false;
-			}
-			else{
-				ds.setPassword(adminPw);
-				try {
-					ds.getConnection();
-					passwordRequired = "Please type in admin password";
-				} catch (SQLException e) {
-					passwordRequired = "Incorrect. Please try again.";
-					dbLogin();
-//					e.printStackTrace();
-				}
-				adminPasswordSet = true;
-			}
+			adminLogin();
+//			ds.setUser("kassa_admin");
+//			adminPw =JOptionPane.showInputDialog(passwordRequired);
+//			if(adminPw == null){
+//				ds.setUser("kassa_user");
+//				ds.setPassword("user");
+//				isAdmin = false;
+//				adminPasswordSet = false;
+//			}
+//			else{
+//				ds.setPassword(adminPw);
+//				try {
+//					ds.getConnection();
+//					passwordRequired = "Please type in admin password";
+//					adminPasswordSet = true;
+//				} catch (SQLException e) {
+//					passwordRequired = "Incorrect. Please try again.";
+//					adminPw = null;
+//					dbLogin();
+////					e.printStackTrace();
+//				}
+//				System.out.println(adminPw);
+//			}
 				
 		}else if(isAdmin == true && adminPasswordSet == true){
 			
@@ -171,13 +176,48 @@ public class MysqlConnection {
 		}
 	}
 	
+	public void adminLogin(){
+		ds.setUser("kassa_admin");
+//		adminPw =JOptionPane.showInputDialog(passwordRequired);
+		adminPw =JOptionPane.showInputDialog(null, passwordRequired, "Admin Login Tool", JOptionPane.WARNING_MESSAGE);
+		if(adminPw == null){
+			ds.setUser("kassa_user");
+			ds.setPassword("user");
+			MysqlConnection.setAdmin(false);
+		}
+		else{
+			ds.setPassword(adminPw);
+			try {
+				ds.getConnection();
+				passwordRequired = "Please type in admin password";
+				adminPasswordSet = true;
+				isAdmin = true;
+			} catch (SQLException e) {
+				passwordRequired = "Incorrect. Please try again.";
+				MysqlConnection.setAdmin(false);
+				MysqlConnection.resetAdminPw();
+				adminLogin();
+//				e.printStackTrace();
+			}
+		}
+		
+	}
+	
 	//Tomasz getters and setters
 	public static void setAdmin(boolean admin){
 		isAdmin = admin;
 	}
 	
+	public static void resetAdminPasswordCheck(){
+		adminPasswordSet = false;
+	}
+	
 	public static boolean getAdmin(){
 		return isAdmin;
+	}
+	
+	public static void resetAdminPw(){
+		adminPw = null;
 	}
 	public static void setLoggedUserID(int userId){
 		loggedUserID = userId;
@@ -185,6 +225,20 @@ public class MysqlConnection {
 	
 	public static int getLoggedUserID(){
 		return loggedUserID;
+	}
+	
+	public static boolean getAdminPw(){
+		return adminPasswordSet;
+		
+	}
+	
+	public static void resetPwReq(){
+		passwordRequired = "Please type in admin password";
+	}
+	
+	public MysqlDataSource getDs(){
+		return ds;
+		
 	}
 
 }
