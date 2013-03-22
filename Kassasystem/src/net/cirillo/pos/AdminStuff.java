@@ -23,7 +23,7 @@ public class AdminStuff {
 		MysqlConnection.resetPwReq();
 		db.adminLogin();
 		if(MysqlConnection.getAdmin()){
-			statusBar.setText(statusBar.getText() + " You are logged in as admin ");
+			statusBar.setText(statusBar.getText() + " ADMIN ");
 		}
 	}
 	
@@ -56,7 +56,7 @@ public class AdminStuff {
 			results = db.selectStaff("select name from staff where staffid = " + MysqlConnection.getLoggedUserID());
 			try {
 				results.next();
-				statusBar.setText("Welcome " + results.getString("name") + "!");
+				statusBar.setText(results.getString("name"));
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

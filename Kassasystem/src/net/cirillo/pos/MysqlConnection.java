@@ -1,17 +1,13 @@
 package net.cirillo.pos;
 
-import java.awt.GridLayout;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Scanner;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
@@ -129,6 +125,25 @@ public class MysqlConnection {
 	}
 	//Tomasz method ends
 
+	public void populateJList(JList list, String query, String column) throws SQLException
+	{
+	   DefaultListModel model = new DefaultListModel(); //create a new list model
+
+	   Statement statement = conn.createStatement();
+	   ResultSet resultSet = statement.executeQuery(query); //run your query
+
+	   while (resultSet.next()) //go through each row that your query returns
+	   {
+	      String itemCode = resultSet.getString(column); //get the element in column
+	       model.addElement(itemCode); //add each item to the model
+	   }
+	   list.setModel(model);
+
+	   resultSet.close();
+	   statement.close();
+
+	}
+	
 	public void close() {
 		try {
 			conn.close();
