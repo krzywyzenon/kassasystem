@@ -155,8 +155,8 @@ public class MysqlConnection {
 	
 	//Tomasz logging to database
 	public void dbLogin(){
-		if(isAdmin == true && adminPasswordSet == false){
-			adminLogin();
+//		if(isAdmin == true && adminPasswordSet == false){
+//			adminLogin();
 //			ds.setUser("kassa_admin");
 //			adminPw =JOptionPane.showInputDialog(passwordRequired);
 //			if(adminPw == null){
@@ -180,7 +180,9 @@ public class MysqlConnection {
 //				System.out.println(adminPw);
 //			}
 				
-		}else if(isAdmin == true && adminPasswordSet == true){
+//		}else 
+			
+			if(isAdmin == true && adminPasswordSet == true){
 			
 				ds.setUser("kassa_admin");
 				ds.setPassword(adminPw);

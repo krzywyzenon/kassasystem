@@ -71,7 +71,9 @@ mnPos.add(mntmAdLogout);
 JSeparator separator = new JSeparator();
 mnPos.add(separator);
 
-JMenuItem mntmExit = new JMenuItem("Avsluta");
+JMenuItem mntmExit = new JMenuItem("Avsluta");//Test
+mntmExit.setActionCommand("testuj");
+mntmExit.addActionListener(this);
 mnPos.add(mntmExit);
 
 JMenu mnItems = new JMenu("Artiklar");
@@ -293,7 +295,7 @@ public JLabel createNameLabel(){
 	try {
 		result.next();
 		if(MysqlConnection.getAdmin()){
-			userNameLabel.setText(result.getString("name") + " ADMIN");
+			userNameLabel.setText(result.getString("name"));
 		}else{
 			userNameLabel.setText(result.getString("name"));
 		}
@@ -354,6 +356,12 @@ case "login":
 	break;
 case "adLogout":
 	adminLogout();
+	break;
+//check T	
+case "testuj":
+	System.out.println("Admin: " + MysqlConnection.getAdmin());
+	System.out.println("AdminPW: " + MysqlConnection.getAdminPw());
+	System.out.println("User: " + con.getDs().getUser());
 	break;
 }
 
