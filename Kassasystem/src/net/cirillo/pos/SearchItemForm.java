@@ -79,8 +79,8 @@ public class SearchItemForm extends JFrame implements ActionListener {
                          // Mysql connection parameters
                          ds.setServerName("localhost");
                          ds.setPort(3306);
-                         ds.setUser("root");
-                         ds.setPassword("mlodasuka");
+                         ds.setUser(MysqlConnection.getUser());
+                         ds.setPassword(MysqlConnection.getPassword());
                          ds.setDatabaseName("kassa");
  
                          try{

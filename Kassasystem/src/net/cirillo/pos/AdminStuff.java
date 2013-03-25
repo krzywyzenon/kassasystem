@@ -50,8 +50,11 @@ public class AdminStuff {
 			MysqlConnection.resetAdminPw();
 			MysqlConnection.resetAdminPasswordCheck();
 			JOptionPane.showMessageDialog(null, "You are no longer logged in as admin");
-			db.getDs().setUser("kassa_user");
-			db.getDs().setPassword("user");
+			MysqlConnection.setUser("kassa_user");
+			MysqlConnection.setPassword("user");
+//			db.getDs().setUser("kassa_user");
+			db.getDs().setUser(MysqlConnection.getUser());
+			db.getDs().setPassword(MysqlConnection.getPassword());
 			db.connect();
 			results = db.selectStaff("select name from staff where staffid = " + MysqlConnection.getLoggedUserID());
 			try {

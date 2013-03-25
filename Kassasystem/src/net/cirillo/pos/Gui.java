@@ -362,6 +362,7 @@ case "testuj":
 	System.out.println("Admin: " + MysqlConnection.getAdmin());
 	System.out.println("AdminPW: " + MysqlConnection.getAdminPw());
 	System.out.println("User: " + con.getDs().getUser());
+	System.out.println("Password: " + MysqlConnection.getPassword());
 	break;
 }
 
