@@ -80,6 +80,7 @@ public class AddItemForm extends JFrame implements ActionListener {
 		case "save":
 			Items items = new Items();
 			items.addItem(itemNameField.getText(), Integer.parseInt(ItemPriceField.getText()));
+			this.dispose();
 			break;
 		}
 	}

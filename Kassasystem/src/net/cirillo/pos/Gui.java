@@ -7,11 +7,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.sql.PreparedStatement;
+import java.awt.event.KeyEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
@@ -32,17 +34,28 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.LineBorder;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 
 public class Gui extends JFrame implements ActionListener {
 
+JLabel userNameLabel = new JLabel("<user>");
 private static final long serialVersionUID = 1L;
 private JTable dataInfo;
 private JTextField searchCustomuer;
 private MysqlConnection con = new MysqlConnection();
 private JTextField totalToPayField;
-JLabel userNameLabel = new JLabel("<user>");
+private static ArrayList<CostItem> data = new ArrayList<CostItem>();
+private static TableModel dataModel;
+private JList<Object> customerList;
+private CustomerHistory customerHistory;
+private int customerId;
+private String selectedItem;
 
 public Gui() {
 con.connect();
@@ -66,14 +79,12 @@ mnPos.add(mntmLogin);
 JMenuItem mntmAdLogout = new JMenuItem("Logga ut från administrat\u00F6r");
 mntmAdLogout.setActionCommand("adLogout");
 mntmAdLogout.addActionListener(this);
-mnPos.add(mntmAdLogout);
+mnPos.add(mntmAdLogout);;
 
 JSeparator separator = new JSeparator();
 mnPos.add(separator);
 
-JMenuItem mntmExit = new JMenuItem("Avsluta");//Test
-mntmExit.setActionCommand("testuj");
-mntmExit.addActionListener(this);
+JMenuItem mntmExit = new JMenuItem("Avsluta");
 mnPos.add(mntmExit);
 
 JMenu mnItems = new JMenu("Artiklar");
@@ -105,7 +116,7 @@ JMenuItem mntmRemoveCustomer = new JMenuItem("Ta bort kund");
 mnCustomers.add(mntmRemoveCustomer);
  
 //The model for how the table is going to look like
-TableModel dataModel = new AbstractTableModel() {
+dataModel = new AbstractTableModel() {
  
 String[] columnNames = {
 "Item name",
@@ -113,46 +124,26 @@ String[] columnNames = {
                     "# of items",
                     "Delete"};
  
-Object[][] data = {
-{"Mjölk", "9",
-"2", "X"},
-{"Spik", "1",
-"632", "X"},
-{"Hammare", "269",
-"1", "X"},
-{"Hammare", "269",
-"1", "X"},
-{"Hammare", "269",
-"1", "X"},
-{"Hammare", "269",
-"1", "X"},
-{"Hammare", "269",
-"1", "X"},
-{"Hammare", "269",
-"1", "X"},
-{"Hammare", "269",
-"1", "X"},
-{"Hammare", "269",
-"1", "X"}
-};
- 
 public int getColumnCount() { return columnNames.length; }
-public int getRowCount() { return data.length;}
+public int getRowCount() { return data.size();}
 public String getColumnName(int col) { return columnNames[col]; }
-public Object getValueAt(int row, int col) { return data[row][col]; }
+public Object getValueAt(int row, int col) { 
+return data.get(row).getColumn(col);
+}
+
 public Class<? extends Object> getColumnClass(int c) {
        return getValueAt(0, c).getClass(); }
  public boolean isCellEditable(int row, int col) {
-       if (col > 0) {
-           return false;
-       } else {
+       if (col == 2) {
            return true;
+       } else {
+           return false;
        }
    }
  public void setValueAt(Object value, int row, int col) {
-       data[row][col] = value;
-       fireTableCellUpdated(row, col);
-   }
+ data.get(row).setValueAt(col, value);
+ fireTableCellUpdated(row, col);
+ }
 };
  
 getContentPane().setLayout(new BorderLayout(0, 0));
@@ -161,15 +152,33 @@ dataInfo.setColumnSelectionAllowed(true);
 JScrollPane tableScrollPane = new JScrollPane(dataInfo);
 getContentPane().add(tableScrollPane, BorderLayout.CENTER);
  
-JButton button1 = new JButton("Confirm transaction / Check out");
-getContentPane().add(button1, BorderLayout.SOUTH);
+JButton confirmButton = new JButton("Confirm transaction / Check out");
+confirmButton.addActionListener(new ActionListener() {
+public void actionPerformed(ActionEvent confirmClick) {
+System.out.println(confirmClick);
+for (int i = 0; i < dataInfo.getRowCount(); i++){
+String nameOfItem = (String) dataInfo.getValueAt(i, 0);
+int costOfItem = Integer.parseInt(String.valueOf(dataInfo.getValueAt(i, 1)));
+int amountOfItems = Integer.parseInt(String.valueOf(dataInfo.getValueAt(i, 2)));
+System.out.println(nameOfItem + " " + costOfItem + " " + amountOfItems);
+
+}
  
-TableColumn itemColumnComboBox = dataInfo.getColumnModel().getColumn(0);
-JComboBox<String> comboBox = new JComboBox<String>();
-itemColumnComboBox.setCellEditor(new DefaultCellEditor(comboBox));
-comboBox.addItemListener(new ItemListener() {
-public void itemStateChanged(ItemEvent arg0) {
-System.out.println("Changed to: " + arg0);
+}
+});
+getContentPane().add(confirmButton, BorderLayout.SOUTH);
+ 
+dataInfo.addPropertyChangeListener(new PropertyChangeListener() {
+public void propertyChange(PropertyChangeEvent arg0) {
+ System.out.println("HEJsan");
+}
+});
+dataInfo.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent event) {
+ if (event.getClickCount() == 2) {
+ System.out.println("HEJ");
+ }
 }
 });
  
@@ -177,7 +186,7 @@ System.out.println("Changed to: " + arg0);
  
 ArrayList<String> itemNames = new ArrayList<String>();
 String query = "SELECT name FROM item ORDER BY name ASC"; 
-ResultSet rs = con.selectStaff(query); 
+ResultSet rs = con.select(query); 
 
 try {
 rs.beforeFirst();
@@ -197,20 +206,8 @@ rs.close();
 // TODO Auto-generated catch block
 e1.printStackTrace();
 } 
-
-// Populate the combo box
-DefaultComboBoxModel model = new DefaultComboBoxModel(itemNames.toArray());
-comboBox.setModel(model);
- 
- 
- 
- 
- 
- 
  
 TableColumn itemColumnDeleteButton = dataInfo.getColumnModel().getColumn(3);
-JButton deleteButton = new JButton("X");
-//itemColumnDeleteButton.setCellRenderer(deleteButton);
  
 JLabel itemCost = new JLabel("Cost");
 JPanel test = new JPanel();
@@ -223,7 +220,35 @@ JLabel loggedInAsLabel = new JLabel("Logged in as:");
 JSeparator separator_1 = new JSeparator();
  
 //Creating the JList for customers and getting the data for it
-JList<Object> customerList = new JList<Object>();
+customerList = new JList<Object>();
+customerList.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent eventList) {
+	if(!MysqlConnection.getUser().equals("kassa_user")){
+		
+		if (eventList.getClickCount() == 2) {
+			selectedItem = (String) customerList.getSelectedValue();
+			System.out.println(selectedItem + ": dubbleclick");
+			con.connect();
+			ResultSet qq = con.select("SELECT customerid FROM customer WHERE name='" + selectedItem + "';");
+			try {
+				qq.beforeFirst();
+				System.out.println(con.getUser());
+				while (qq.next()) { 
+					customerId = qq.getInt("customerid"); 
+					System.out.println(customerId);
+				}
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			con.close();
+			
+			customerHistory = new CustomerHistory(getLocation().x+(getWidth()/2),getLocation().y+(getHeight()/2),customerId, selectedItem);
+			customerHistory.setVisible(true);
+		}
+	}
+}
+});
 try {
 con.populateJList(customerList, "SELECT * FROM customer ORDER BY name ASC;", "name");
 } catch (SQLException e) {
@@ -242,6 +267,8 @@ JLabel totalToPay = new JLabel("Total to pay:");
 totalToPayField = new JTextField();
 totalToPayField.setEditable(false);
 totalToPayField.setColumns(10);
+ 
+
  
 GroupLayout gl_test = new GroupLayout(test);
 gl_test.setHorizontalGroup(
@@ -286,6 +313,43 @@ gl_test.createParallelGroup(Alignment.LEADING)
 test.setLayout(gl_test);
  
 JLabel itemAmount = new JLabel("Amount");
+ 
+addItem("apa", 23, 4);
+addItem("Dennis", 45000, 3);
+addItem("Skräp", 1, 2);
+ 
+//Summarizing the total cost of everything that should be payed for
+int costAdded = 0;
+for (int i = 0; i < 3; i++) {
+costAdded += Integer.parseInt(String.valueOf(dataInfo.getValueAt(i, 1)));
+}
+String valueOfAll = String.valueOf(costAdded); 
+totalToPayField.setText(valueOfAll);
+}
+//Add a row to the JTable in the mainwindow
+public static void addItem(String itemName, int itemCost, int itemAmount) {
+data.add(new CostItem(itemName, itemCost * itemAmount, itemAmount));
+}
+public void deleteItem() {
+ 
+}
+public void openNewItemForm() {
+AddItemForm addItemForm = new AddItemForm(getLocation().x+(getWidth()/2),getLocation().y+(getHeight()/2));
+addItemForm.setVisible(true);
+}
+
+public void openSearchItemForm() {
+SearchItemForm searchItemForm = new SearchItemForm(getLocation().x+(getWidth()/2),getLocation().y+(getHeight()/2));
+searchItemForm.setVisible(true);
+}
+
+public void adminLoginForm(){
+	AdminStuff adminHandler = new AdminStuff(con, userNameLabel);
+	adminHandler.adminAuthCheck();
+}
+public void adminLogout(){
+	AdminStuff adminHandler = new AdminStuff(con, userNameLabel);
+	adminHandler.adminLogout();
 }
 
 public JLabel createNameLabel(){
@@ -309,38 +373,6 @@ public JLabel createNameLabel(){
 	return userNameLabel;
 	
 }
-
-public void openNewItemForm() {
-AddItemForm addItemForm = new AddItemForm(getLocation().x+(getWidth()/2),getLocation().y+(getHeight()/2));
-addItemForm.setVisible(true);
-}
-
-public void openSearchItemForm() {
-SearchItemForm searchItemForm = new SearchItemForm(getLocation().x+(getWidth()/2),getLocation().y+(getHeight()/2));
-searchItemForm.setVisible(true);
-}
-
-public void adminLoginForm(){
-	AdminStuff adminHandler = new AdminStuff(con, userNameLabel);
-	adminHandler.adminAuthCheck();
-}
-public void adminLogout(){
-	AdminStuff adminHandler = new AdminStuff(con, userNameLabel);
-	adminHandler.adminLogout();
-}
-/*
-int total;
-final private int costRow = 1; 
- 
- private void reCalculate(TableModel ml) {
-   if (ml == null)
-     return;
-   int total = 0;
-   for (int i = 0; i < costRow; i++) {
-     total += ((Double) ml.getValueAt(costRow, i)).doubleValue();
-   }
-   totalToPayField.setText(Double.toString(total));
- }*/
  
 @Override
 public void actionPerformed(ActionEvent e) {
@@ -356,13 +388,6 @@ case "login":
 	break;
 case "adLogout":
 	adminLogout();
-	break;
-//check T	
-case "testuj":
-	System.out.println("Admin: " + MysqlConnection.getAdmin());
-	System.out.println("AdminPW: " + MysqlConnection.getAdminPw());
-	System.out.println("User: " + con.getDs().getUser());
-	System.out.println("Password: " + MysqlConnection.getPassword());
 	break;
 }
 

@@ -70,7 +70,6 @@ public class LoginGUI {
 						while(res.next()){
 							try {
 								if(userName.getText().equals(res.getString("username")) && password.getText().equals(res.getString("password"))){
-//									System.out.println("Welcome " + res.getString("name"));
 									if(res.getShort("admin") == 1 ){
 										MysqlConnection.setAdmin(true);
 									}

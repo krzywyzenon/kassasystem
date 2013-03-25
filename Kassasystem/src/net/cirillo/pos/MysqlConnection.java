@@ -83,14 +83,13 @@ public class MysqlConnection {
 		}
 		System.out.println("Item added to database");
 	}
-	public void select(String q) {
+	public ResultSet select(String q) {
 		//Create a statement object for sending queries
 				Statement query = null;
 				try {
 					query = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 				} catch (SQLException e) {
 					System.err.println("Create statement failed. " + e.getMessage());
-					return;
 				}
 
 				//The result set will store the data returned by the query
@@ -108,7 +107,21 @@ public class MysqlConnection {
 				} catch (SQLException e) {
 					System.err.println("SQL Error: " + e.getMessage());
 				}
+				
+				return results;
 	}
+	public void delete(String q) {
+		  try{
+		   Statement deleteQuery = conn.createStatement();
+		   deleteQuery.executeUpdate(q);
+		   System.out.println("Item deleted");
+		  }
+
+		  catch (SQLException e){
+		   System.out.println("SQL ERROR: " + e.getMessage());
+		  }
+		 }
+	
 	//Tomasz method
 	public ResultSet selectStaff(String q) {
 		//Create a statement object for sending queries
@@ -172,8 +185,7 @@ public class MysqlConnection {
 				ds.setPassword(password);
 		}else 
 		{
-//			ds.setUser("kassa_user");
-//			ds.setPassword("user");
+
 			setUser("kassa_user");
 			setPassword("user");
 			ds.setUser(user);
@@ -184,14 +196,11 @@ public class MysqlConnection {
 	public void adminLogin(){
 		setUser("kassa_admin");
 		ds.setUser(user);
-//		ds.setUser("kassa_admin");
 		adminPw =JOptionPane.showInputDialog(null, passwordRequired, "Admin Login Tool", JOptionPane.WARNING_MESSAGE);
 		if(adminPw == null){
 			setUser("kassa_user");
 			ds.setUser(user);
-//			ds.setUser("kassa_user");
 			setPassword("user");
-//			ds.setPassword("user");
 			ds.setPassword(password);
 			MysqlConnection.setAdmin(false);
 		}
